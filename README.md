@@ -1,16 +1,36 @@
 # Whispering Garden
 
-An interactive animated botanical garden website built with HTML5 Canvas, CSS3, and vanilla JavaScript. Roses, lilies, dandelions, and delicate white blossoms grow, unfurl, and sway in warm morning light, accompanied by drifting dandelion seeds, falling petals, subtle parallax, and optional procedural ambient music.
+An interactive four-season animated botanical garden website built with HTML5 Canvas, CSS3, and vanilla JavaScript. Switch seamlessly between Spring, Summer, Autumn, and Winter as 12 procedurally rendered flower varieties bloom, sway in the breeze, and respond to your cursor or touch.
 
-## Features
+## Flower Varieties
 
-- **Botanical Variety & Depth**: Multi-layered garden composition featuring red, pink, and pastel roses; white and pink lilies with stamens and side buds; dandelions with detachable floating seeds; and airy sprays of white blossoms across three parallax depth planes.
-- **Organic Motion**: Staggered bloom-from-bud growth sequence, multi-frequency wind waves, drifting petals with 3D-like flutter, rising golden pollen motes, and soft morning sunbeams.
-- **Interactive Garden**:
-  - Move your cursor or finger to create subtle parallax and brush through nearby blooms.
-  - Tap or click anywhere to scatter petals, rustle nearby stems, and puff seeds from dandelions.
-  - Trigger a sweeping wind gust with **Breeze** (`Space`), restart the growth sequence with **Replay** (`R`), or toggle gentle procedural ambient music with **Sound On / Off** (`M`).
-- **Zero Build Step & GitHub Pages Ready**: Pure HTML, CSS, and JavaScript using relative paths and Web Audio synthesis, with no backend or broken external asset dependencies.
+- **Roses** in muted crimson red, pastel pink, creamy white, blush pastel, and warm autumn apricot
+- **Tulips** in coral pink, sunny yellow, blush cream, and deep crimson
+- **Sunflowers** with dual-ring golden ray petals and Fibonacci-textured seed discs
+- **Lilies** in creamy white, soft pink, and golden apricot with stamens and side buds
+- **Dandelions** with backlit seed heads whose seeds detach and float away in the breeze
+- **Cherry Blossoms** on slender arching branches with notched sakura petals
+- **Daisies** with slender white and blush-tipped petals around golden discs
+- **Lavender** with tiered violet-periwinkle flower spikes
+- **Hydrangeas** with rounded clusters of 4-petal florets in blue, lavender, pink, and winter frost
+- **Baby's Breath** and small white blossom sprays with pearl buds
+- **Chrysanthemums** (Autumn) in burnt orange, amber gold, and rust crimson
+- **Snowdrops** (Winter) with nodding ivory-white bell petals on frosted stems
+
+## Seasonal Environments
+
+- **Spring** (`1`): Cherry blossoms, tulips, daisies, pastel roses, lavender, dandelions, and gently falling sakura petals.
+- **Summer** (`2`): Sunflowers, lush roses, lilies, hydrangeas, lavender, bright warm sunlight, and floating pollen.
+- **Autumn** (`3`): Warm orange, amber, and crimson chrysanthemums, autumn roses, golden lilies, tumbling leaves, and golden-hour lighting.
+- **Winter** (`4`): Snow-covered hills, frosted white roses, lilies, snowdrops, icy hydrangeas, and gentle multi-layered snowfall.
+
+## Interactions & Controls
+
+- **Season Selector**: Smoothly cross-fades the sky, lighting, meadow hills, flower varieties, particles, and ambient musical harmony (`1`–`4`).
+- **Pointer / Touch**: Move across the garden for 3-layer parallax and gentle stem sway; click or tap anywhere to scatter petals or snowflakes and puff dandelion seeds.
+- **Breeze** (`Space`): Sends an organic wind wave sweeping across the garden.
+- **Replay** (`R`): Replays the staggered bloom-from-bud animation for the active season.
+- **Sound On / Off** (`M`): Toggles optional procedural Web Audio ambient music (starts only after user interaction).
 
 ## Project Structure
 
@@ -28,30 +48,15 @@ An interactive animated botanical garden website built with HTML5 Canvas, CSS3, 
 
 ## Running Locally
 
-Because the site uses standard HTML, CSS, and JavaScript with relative paths, you can preview it with any local static server:
-
 ```bash
-# Option 1: Python 3
 python -m http.server 8000
-
-# Option 2: Node.js (npx)
-npx serve .
 ```
 
-Then open `http://localhost:8000` (or the URL printed by `serve`) in your browser.
+Then open `http://localhost:8000` in your browser.
 
 ## Deploying to GitHub Pages
 
-1. Create a new repository on GitHub and push the project files to the `main` branch:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial Whispering Garden website"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/<your-repo>.git
-   git push -u origin main
-   ```
-2. Open your repository on GitHub and go to **Settings > Pages**.
-3. Under **Build and deployment**, select **Source: Deploy from a branch**.
-4. Choose the `main` branch and `/ (root)` folder, then click **Save**.
-5. Wait a minute for GitHub Pages to publish, then visit `https://<your-username>.github.io/<your-repo>/`.
+1. Push the repository to GitHub on the `main` branch.
+2. Open **Settings > Pages** in your GitHub repository.
+3. Under **Build and deployment**, select **Deploy from a branch**, choose `main` and `/ (root)`, and click **Save**.
+4. Visit `https://<your-username>.github.io/<your-repo>/`.

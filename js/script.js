@@ -1,7 +1,7 @@
 /**
  * Whispering Garden — Main Application Controller
- * Connects the botanical canvas scene, ambient Web Audio synthesizer,
- * introductory flow, responsive resize handling, and user interactions.
+ * Connects the seasonal botanical canvas scene, Web Audio ambient synthesizer,
+ * season selector, introductory screen, responsive resizing, and interactions.
  */
 
 (function () {
@@ -13,6 +13,7 @@
   const startBtn = document.getElementById('start-btn');
   const introMusicToggle = document.getElementById('intro-music-toggle');
   const gardenHud = document.getElementById('garden-hud');
+  const seasonButtons = Array.from(document.querySelectorAll('.season-btn'));
   const breezeBtn = document.getElementById('breeze-btn');
   const replayBtn = document.getElementById('replay-btn');
   const musicBtn = document.getElementById('music-btn');
@@ -23,13 +24,16 @@
     return;
   }
 
+  const SEASON_ORDER = ['spring', 'summer', 'autumn', 'winter'];
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const scene = new window.GardenScene(canvas, {
     reducedMotion: reducedMotionQuery.matches,
+    season: 'spring',
   });
   const audio = new window.GardenAudio();
 
   let hasStarted = false;
+  let currentSeason = 'spring';
   let hintTimer = null;
   let resizeTimer = null;
   let lastFrameTime = performance.now();
@@ -46,13 +50,29 @@
     }
   }
 
+  function selectSeason(season) {
+    if (!SEASON_ORDER.includes(season) || season === currentSeason) return;
+    currentSeason = season;
+
+    document.documentElement.setAttribute('data-season', season);
+    seasonButtons.forEach((btn) => {
+      const active = btn.dataset.season === season;
+      btn.setAttribute('aria-pressed', String(active));
+    });
+
+    scene.setSeason(season);
+    audio.setSeason(season);
+    audio.playSoftChime();
+    hideInteractionHint();
+  }
+
   function showInteractionHint() {
     if (!interactionHint) return;
     interactionHint.classList.add('is-visible');
     clearTimeout(hintTimer);
     hintTimer = setTimeout(() => {
       interactionHint.classList.remove('is-visible');
-    }, 6200);
+    }, 6400);
   }
 
   function hideInteractionHint() {
@@ -73,7 +93,6 @@
 
     scene.startBloom();
 
-    // Start ambient music only if the user kept the preference checked
     if (introMusicToggle && introMusicToggle.checked) {
       const started = audio.start();
       updateMusicButton(started);
@@ -81,7 +100,6 @@
       updateMusicButton(false);
     }
 
-    // Show gentle interaction hint once flowers are rising
     setTimeout(showInteractionHint, 1800);
   }
 
@@ -90,6 +108,12 @@
      ======================================================================== */
 
   startBtn.addEventListener('click', enterGarden);
+
+  seasonButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      selectSeason(btn.dataset.season);
+    });
+  });
 
   breezeBtn.addEventListener('click', () => {
     scene.triggerBreeze();
@@ -106,7 +130,6 @@
     updateMusicButton(playing);
   });
 
-  // Pointer & touch interactions on the garden canvas
   canvas.addEventListener('pointermove', (e) => {
     const rect = canvas.getBoundingClientRect();
     scene.setPointer(e.clientX - rect.left, e.clientY - rect.top, true);
@@ -143,10 +166,17 @@
     } else if (e.key === 'm' || e.key === 'M') {
       const playing = audio.toggle();
       updateMusicButton(playing);
+    } else if (e.key === '1') {
+      selectSeason('spring');
+    } else if (e.key === '2') {
+      selectSeason('summer');
+    } else if (e.key === '3') {
+      selectSeason('autumn');
+    } else if (e.key === '4') {
+      selectSeason('winter');
     }
   });
 
-  // Debounced resize handler so desktop/tablet/mobile reflows cleanly
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
@@ -154,7 +184,6 @@
     }, 120);
   });
 
-  // Respect live changes to prefers-reduced-motion
   if (typeof reducedMotionQuery.addEventListener === 'function') {
     reducedMotionQuery.addEventListener('change', (e) => {
       scene.reducedMotion = e.matches;
@@ -166,7 +195,6 @@
      ======================================================================== */
 
   function tick(now) {
-    // Clamp delta-time to prevent large jumps when returning from another tab
     const dt = Math.min(0.05, Math.max(0.001, (now - lastFrameTime) / 1000));
     lastFrameTime = now;
 

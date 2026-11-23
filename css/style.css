@@ -1,22 +1,19 @@
 /* ==========================================================================
    Whispering Garden — Stylesheet
-   Palette: Soft pastel pink, creamy white, natural green, muted rose red,
-            light beige, and subtle golden highlights.
+   Four-season botanical theming with soft organic neutrals, WCAG AA+ contrast,
+   minimal HUD chrome, and fluid desktop-to-mobile responsiveness.
    ========================================================================== */
 
 :root {
-  --cream: #fcf8f2;
-  --cream-soft: rgba(252, 248, 242, 0.84);
-  --beige: #efe6d8;
-  --beige-deep: #e2d4c0;
-  --blush: #f3c6cf;
-  --rose: #a84452;
-  --rose-deep: #852f3c;
+  --surface: #fcf8f2;
+  --surface-soft: rgba(252, 248, 242, 0.86);
+  --accent: #a84452;
+  --accent-deep: #852f3c;
+  --accent-soft: #f6e7ea;
   --leaf: #4f6f52;
-  --gold: #c8a253;
   --ink: #2c2422;
   --ink-muted: #594c47;
-  --border-subtle: rgba(133, 47, 60, 0.16);
+  --border-subtle: rgba(133, 47, 60, 0.17);
   --shadow-soft: 0 12px 34px rgba(56, 38, 34, 0.08);
   --shadow-btn: 0 6px 20px rgba(133, 47, 60, 0.22);
 
@@ -26,6 +23,36 @@
   --radius-card: 18px;
   --radius-control: 999px;
   --ease-organic: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Seasonal accent & surface harmonies */
+:root[data-season="summer"] {
+  --surface: #fdfaf0;
+  --surface-soft: rgba(253, 250, 240, 0.86);
+  --accent: #3d6b42;
+  --accent-deep: #2c5230;
+  --accent-soft: #e6f0e5;
+  --border-subtle: rgba(44, 82, 48, 0.18);
+}
+
+:root[data-season="autumn"] {
+  --surface: #fcf4e6;
+  --surface-soft: rgba(252, 244, 230, 0.86);
+  --accent: #a84e24;
+  --accent-deep: #823816;
+  --accent-soft: #f5e4d4;
+  --border-subtle: rgba(130, 56, 22, 0.2);
+}
+
+:root[data-season="winter"] {
+  --surface: #f4f8fc;
+  --surface-soft: rgba(244, 248, 252, 0.88);
+  --accent: #3b5d7a;
+  --accent-deep: #29455e;
+  --accent-soft: #e1ecf5;
+  --ink: #1e2a36;
+  --ink-muted: #465869;
+  --border-subtle: rgba(41, 69, 94, 0.18);
 }
 
 *,
@@ -41,27 +68,21 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--cream);
+  background-color: var(--surface);
   color: var(--ink);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.8s ease, color 0.6s ease;
 }
 
-/* Main viewport stage */
 .stage {
   position: relative;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    #fcf8f2 0%,
-    #f8eee7 46%,
-    #efe6d8 78%,
-    #e5decb 100%
-  );
+  background-color: var(--surface);
 }
 
 .garden-canvas {
@@ -110,7 +131,7 @@ body {
   max-width: 460px;
   padding: clamp(32px, 5vw, 48px) clamp(24px, 5vw, 42px);
   text-align: center;
-  background: rgba(252, 248, 242, 0.86);
+  background: rgba(252, 248, 242, 0.88);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--border-subtle);
@@ -163,10 +184,10 @@ body {
   min-width: 196px;
   min-height: 48px;
   padding: 13px 34px;
-  border: 1px solid var(--rose-deep);
+  border: 1px solid var(--accent-deep);
   border-radius: var(--radius-control);
-  background-color: var(--rose);
-  color: var(--cream);
+  background-color: var(--accent);
+  color: #fcf8f2;
   font-family: var(--font-ui);
   font-size: 0.98rem;
   font-weight: 500;
@@ -180,9 +201,9 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: var(--rose-deep);
+  background-color: var(--accent-deep);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(133, 47, 60, 0.28);
+  box-shadow: 0 8px 24px rgba(44, 36, 34, 0.2);
 }
 
 .btn-primary:active {
@@ -205,12 +226,12 @@ body {
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--rose);
+  accent-color: var(--accent);
   cursor: pointer;
 }
 
 /* ==========================================================================
-   Minimal Garden HUD
+   Minimal Garden HUD & Season Selector
    ========================================================================== */
 
 .garden-hud {
@@ -222,14 +243,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: max(16px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: max(14px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 10px max(18px, env(safe-area-inset-left));
   pointer-events: none;
   opacity: 0;
   transform: translateY(-10px);
   transition:
-    opacity 0.9s var(--ease-organic) 0.4s,
-    transform 0.9s var(--ease-organic) 0.4s;
+    opacity 0.9s var(--ease-organic) 0.35s,
+    transform 0.9s var(--ease-organic) 0.35s;
 }
 
 .garden-hud.is-visible {
@@ -241,16 +263,62 @@ body {
   pointer-events: auto;
   padding: 8px 14px;
   border-radius: var(--radius-control);
-  background: rgba(252, 248, 242, 0.65);
-  border: 1px solid rgba(133, 47, 60, 0.1);
+  background: var(--surface-soft);
+  border: 1px solid var(--border-subtle);
+  transition: background-color 0.6s ease, border-color 0.6s ease;
 }
 
 .brand-name {
   font-family: var(--font-display);
-  font-size: 1.22rem;
+  font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--ink);
+}
+
+/* Season Selector */
+.season-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-control);
+  background: var(--surface-soft);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 14px rgba(44, 36, 34, 0.06);
+  pointer-events: auto;
+  transition: background-color 0.6s ease, border-color 0.6s ease;
+}
+
+.season-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.season-btn:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.season-btn[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fcfaf7;
+  border-color: var(--accent-deep);
 }
 
 .hud-controls {
@@ -267,26 +335,26 @@ body {
   gap: 7px;
   min-width: 44px;
   min-height: 44px;
-  padding: 0 15px;
+  padding: 0 14px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-control);
-  background: var(--cream-soft);
+  background: var(--surface-soft);
   color: var(--ink);
   font-family: var(--font-ui);
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(44, 36, 34, 0.06);
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
     transform 0.2s var(--ease-organic);
 }
 
 .hud-btn:hover {
-  background: var(--cream);
-  border-color: rgba(133, 47, 60, 0.34);
+  background: var(--surface);
+  border-color: var(--accent);
   transform: translateY(-1px);
 }
 
@@ -295,16 +363,15 @@ body {
 }
 
 .hud-btn[aria-pressed="true"] {
-  background: #f6e7ea;
-  border-color: rgba(168, 68, 82, 0.42);
-  color: var(--rose-deep);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-deep);
 }
 
 .hud-icon {
   flex-shrink: 0;
 }
 
-/* Toggle sound icons based on aria-pressed */
 #music-btn[aria-pressed="false"] .icon-sound-on {
   display: none;
 }
@@ -320,15 +387,15 @@ body {
 .interaction-hint {
   position: absolute;
   left: 50%;
-  bottom: max(20px, env(safe-area-inset-bottom));
+  bottom: max(18px, env(safe-area-inset-bottom));
   z-index: 12;
   margin: 0;
   padding: 9px 18px;
   max-width: calc(100vw - 32px);
   transform: translateX(-50%) translateY(8px);
   border-radius: var(--radius-control);
-  background: rgba(252, 248, 242, 0.82);
-  border: 1px solid rgba(133, 47, 60, 0.12);
+  background: var(--surface-soft);
+  border: 1px solid var(--border-subtle);
   font-size: 0.84rem;
   color: var(--ink-muted);
   text-align: center;
@@ -348,7 +415,7 @@ body {
 
 button:focus-visible,
 input:focus-visible {
-  outline: 2px solid var(--rose-deep);
+  outline: 2px solid var(--accent-deep);
   outline-offset: 3px;
 }
 
@@ -360,7 +427,7 @@ input:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: var(--cream);
+  background: var(--surface);
   color: var(--ink);
   text-align: center;
   font-size: 1rem;
@@ -370,17 +437,34 @@ input:focus-visible {
    Responsive Adjustments (Tablet & Mobile)
    ========================================================================== */
 
+@media (max-width: 900px) {
+  .garden-brand {
+    display: none;
+  }
+
+  .garden-hud {
+    justify-content: space-between;
+  }
+}
+
 @media (max-width: 680px) {
   .garden-hud {
-    padding: max(12px, env(safe-area-inset-top)) 14px 10px;
+    padding: max(10px, env(safe-area-inset-top)) 12px 8px;
+    gap: 8px;
+    justify-content: center;
   }
 
-  .garden-brand {
-    padding: 7px 12px;
+  .season-switcher {
+    width: 100%;
+    max-width: 360px;
+    justify-content: space-between;
   }
 
-  .brand-name {
-    font-size: 1.06rem;
+  .season-btn {
+    flex: 1 1 0;
+    min-height: 44px;
+    padding: 6px 8px;
+    font-size: 0.82rem;
   }
 
   .hud-btn {
@@ -392,27 +476,14 @@ input:focus-visible {
   }
 }
 
-@media (max-width: 400px) {
-  .intro-card {
-    padding: 28px 20px;
-  }
-
-  .garden-brand {
-    display: none;
-  }
-
-  .garden-hud {
-    justify-content: flex-end;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .intro-screen,
   .intro-card,
   .garden-hud,
   .interaction-hint,
   .btn-primary,
-  .hud-btn {
+  .hud-btn,
+  .season-btn {
     transition-duration: 0.15s;
   }
 }

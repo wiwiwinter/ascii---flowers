@@ -1,32 +1,55 @@
 /**
- * Whispering Garden — Procedural Ambient Garden Music
- * Uses the Web Audio API to synthesize a soft, dreamy romantic soundscape
- * (warm sustained chords + delicate harp/celesta notes) with zero external
- * audio file dependencies. Initializes strictly after a user gesture.
+ * Whispering Garden — Procedural Seasonal Ambient Music
+ * Synthesizes a soft, dreamy romantic soundscape using the Web Audio API
+ * with tailored harmonic palettes for Spring, Summer, Autumn, and Winter.
+ * Initializes strictly after a user gesture.
  */
 
 (function (global) {
   'use strict';
 
-  // F Major / D Minor dreamy progression (frequencies in Hz)
-  const CHORDS = [
-    [174.61, 220.00, 261.63, 329.63], // Fmaj7
-    [146.83, 220.00, 261.63, 329.63], // Dm9 (no 3rd)
-    [116.54, 174.61, 220.00, 293.66], // Bbmaj7
-    [130.81, 196.00, 261.63, 329.63], // Cmaj
-  ];
-
-  // Upper harp melody notes in F major pentatonic
-  const MELODY_NOTES = [
-    349.23, // F4
-    392.00, // G4
-    440.00, // A4
-    523.25, // C5
-    587.33, // D5
-    659.25, // E5
-    698.46, // F5
-    783.99, // G5
-  ];
+  const SEASON_HARMONIES = {
+    spring: {
+      chords: [
+        [174.61, 220.00, 261.63, 329.63], // Fmaj7
+        [146.83, 220.00, 261.63, 329.63], // Dm9
+        [116.54, 174.61, 220.00, 293.66], // Bbmaj7
+        [130.81, 196.00, 261.63, 329.63], // Cmaj
+      ],
+      melody: [349.23, 392.00, 440.00, 523.25, 587.33, 659.25, 698.46, 783.99],
+      filterHz: 560,
+    },
+    summer: {
+      chords: [
+        [196.00, 246.94, 293.66, 369.99], // Gmaj7
+        [164.81, 246.94, 293.66, 369.99], // Em9
+        [130.81, 196.00, 246.94, 329.63], // Cmaj7
+        [146.83, 220.00, 293.66, 369.99], // Dmaj
+      ],
+      melody: [392.00, 440.00, 493.88, 587.33, 659.25, 739.99, 783.99, 880.00],
+      filterHz: 640,
+    },
+    autumn: {
+      chords: [
+        [146.83, 220.00, 261.63, 329.63], // Dm9
+        [116.54, 174.61, 220.00, 261.63], // Bbmaj9
+        [130.81, 196.00, 246.94, 293.66], // C6/9
+        [110.00, 164.81, 196.00, 261.63], // Am7
+      ],
+      melody: [293.66, 329.63, 349.23, 440.00, 523.25, 587.33, 659.25],
+      filterHz: 460,
+    },
+    winter: {
+      chords: [
+        [130.81, 196.00, 246.94, 329.63], // Cmaj7
+        [164.81, 246.94, 293.66, 392.00], // Em7
+        [174.61, 261.63, 329.63, 392.00], // Fmaj9
+        [146.83, 220.00, 261.63, 392.00], // Dm11
+      ],
+      melody: [523.25, 587.33, 659.25, 783.99, 880.00, 987.77, 1046.50],
+      filterHz: 720,
+    },
+  };
 
   class GardenAudio {
     constructor() {
@@ -34,10 +57,17 @@
       this.masterGain = null;
       this.delayNode = null;
       this.isPlaying = false;
+      this.season = 'spring';
       this.chordIndex = 0;
       this.chordTimer = null;
       this.noteTimer = null;
       this.supported = Boolean(window.AudioContext || window.webkitAudioContext);
+    }
+
+    setSeason(season) {
+      if (SEASON_HARMONIES[season]) {
+        this.season = season;
+      }
     }
 
     initContext() {
@@ -49,7 +79,6 @@
       this.masterGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
 
-      // Gentle low-pass warm delay network for dreamy spaciousness
       this.delayNode = this.ctx.createDelay(1.2);
       this.delayNode.delayTime.value = 0.42;
 
@@ -118,7 +147,8 @@
     playPadChord() {
       if (!this.isPlaying || !this.ctx) return;
 
-      const chord = CHORDS[this.chordIndex % CHORDS.length];
+      const harmony = SEASON_HARMONIES[this.season] || SEASON_HARMONIES.spring;
+      const chord = harmony.chords[this.chordIndex % harmony.chords.length];
       this.chordIndex++;
 
       const now = this.ctx.currentTime;
@@ -126,7 +156,7 @@
 
       const filter = this.ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(520, now);
+      filter.frequency.setValueAtTime(harmony.filterHz, now);
       filter.connect(this.masterGain);
 
       chord.forEach((freq, idx) => {
@@ -138,8 +168,8 @@
         osc.detune.setValueAtTime((idx - 1.5) * 3.5, now);
 
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.linearRampToValueAtTime(0.055, now + 1.8);
-        gain.gain.linearRampToValueAtTime(0.04, now + duration - 1.6);
+        gain.gain.linearRampToValueAtTime(0.052, now + 1.8);
+        gain.gain.linearRampToValueAtTime(0.038, now + duration - 1.6);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
         osc.connect(gain);
@@ -155,14 +185,15 @@
     scheduleNextNote() {
       if (!this.isPlaying || !this.ctx) return;
 
-      const freq = MELODY_NOTES[Math.floor(Math.random() * MELODY_NOTES.length)];
-      this.playHarpNote(freq, 0.09);
+      const harmony = SEASON_HARMONIES[this.season] || SEASON_HARMONIES.spring;
+      const notes = harmony.melody;
+      const freq = notes[Math.floor(Math.random() * notes.length)];
+      this.playHarpNote(freq, 0.085);
 
-      // Occasionally add a soft harmonic fifth or octave shimmer
       if (Math.random() < 0.32) {
-        const secondFreq = MELODY_NOTES[Math.floor(Math.random() * MELODY_NOTES.length)];
+        const secondFreq = notes[Math.floor(Math.random() * notes.length)];
         setTimeout(() => {
-          if (this.isPlaying) this.playHarpNote(secondFreq, 0.055);
+          if (this.isPlaying) this.playHarpNote(secondFreq, 0.05);
         }, 320);
       }
 
@@ -192,13 +223,12 @@
       osc.stop(now + 2.5);
     }
 
-    /**
-     * Play a soft delicate chime when the user sends a breeze or taps a bloom.
-     */
     playSoftChime() {
       if (!this.isPlaying || !this.ctx) return;
-      const freq = MELODY_NOTES[3 + Math.floor(Math.random() * 4)];
-      this.playHarpNote(freq, 0.07);
+      const harmony = SEASON_HARMONIES[this.season] || SEASON_HARMONIES.spring;
+      const notes = harmony.melody;
+      const freq = notes[Math.min(notes.length - 1, 2 + Math.floor(Math.random() * 4))];
+      this.playHarpNote(freq, 0.068);
     }
   }
 
